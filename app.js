@@ -4,9 +4,9 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
+const BarangRoute = require('./routes/BarangRoute');
 
 var app = express();
 
@@ -19,14 +19,21 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 
-app.use('/', index);
-app.use('/users', users);
+app.use('/api', BarangRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
+});
+
+mongoose.connect('mongodb://localhost/belajar-paginate', function(err, res) {
+  if (err) {
+    console.log('koneksi mongodb gagal bung', err);
+  } else {
+    console.log('koneksi mongodb berhasil bung');
+  }
 });
 
 // error handler
