@@ -5,24 +5,64 @@ const Barang = require('../models/Barang');
 const router = express.Router();
 const uuid = require('node-uuid');
 
-router.get('/barang/:page/:limit', function(req, res, next) {
-  var page = req.params.page;
-  var limit = req.params.limit;
+router.get('/barang', function(req, res, next) {
+  var page = req.query.page - 1;
+  var count = req.query.count;
 
-  Barang.paginate({}, {
-    page: parseInt(page),
-    limit: parseInt(limit)
-  }, function(err, barang) {
-    if (err) {
-      return res.json({
-        info: 'error',
-        err: err
+  Barang
+    .find()
+    .limit(parseInt(count))
+    .skip(parseInt(count * page))
+    .exec(function(err, barangs) {
+      Barang.count({}, function(err, size) {
+        return res.json({
+          rows: barangs,
+          pagination: {
+            count: parseInt(count),
+            page: page + 1,
+            pages: Math.ceil(size / count),
+            size: size
+          }
+        });
       });
-    }
+    });
+});
 
-    return res.json(barang);
-  });
+router.get('/barang/find', function(req, res, next) {
+  var page = req.query.page - 1;
+  var count = req.query.count;
+  var key = req.query.key;
+  var value = req.query.value;
 
+  Barang
+    .find({
+      [key]: {
+        '$regex': value,
+        "$options": "i"
+      }
+    })
+    .limit(parseInt(count))
+    .skip(parseInt(count * page))
+    .exec(function(err, barangs) {
+      Barang
+        .find({
+          [key]: {
+            '$regex': value,
+            "$options": "i"
+          }
+        })
+        .count(function(err, size) {
+          return res.json({
+            rows: barangs,
+            pagination: {
+              count: parseInt(count),
+              page: page + 1,
+              pages: Math.ceil(size / count),
+              size: size
+            }
+          });
+        });
+    });
 });
 
 router.post('/barang', function(req, res, next) {
