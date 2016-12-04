@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const BarangRoute = require('./routes/BarangRoute');
+const PenjualanRoute = require('./routes/PenjualanRoute');
 
 var app = express();
 
@@ -20,6 +21,7 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 
 app.use('/api', BarangRoute);
+app.use('/api', PenjualanRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
